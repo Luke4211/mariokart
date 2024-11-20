@@ -237,7 +237,7 @@ def by_cup():
 
     # Get dropdown options
     dropdown_options = conn.execute('''
-        SELECT DISTINCT luke_liam.map, maps.name AS cup_name
+        SELECT DISTINCT luke_liam.map, maps.id AS map_id, maps.name AS cup_name
         FROM luke_liam
         JOIN maps ON luke_liam.map = maps.id
         WHERE luke_liam.map != 'N'

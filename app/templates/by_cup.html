@@ -23,7 +23,7 @@
         <select id="cup-dropdown">
             {% for option in dropdown_options %}
             <option value="{{ option['map'] }}" {% if option['map'] == default_map %}selected{% endif %}>
-                {{ option['cup_name'] }}
+                {{option['map_id']}} - {{ option['cup_name'] }}
             </option>
             {% endfor %}
         </select>
