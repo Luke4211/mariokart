@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mario Kart Graph</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a> | <a href="/graph">Graph</a>
+    </nav>
+
+    <h1>Running Tally Graph</h1>
+    <canvas id="runningTallyChart" width="400" height="200"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('runningTallyChart').getContext('2d');
+        const runningTallyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ x_labels | tojson }}, // Game numbers
+                datasets: [
+                    {
+                        label: 'Cumulative Score',
+                        data: {{ cumulative_scores | tojson }},
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Cumulative Score Over Time'
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Game Number'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Cumulative Score'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

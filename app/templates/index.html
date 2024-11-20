@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mario Kart Statistics</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a> | <a href="/graph">Graph</a>
+    </nav>
+
+    <h1>Mario Kart Running Tally</h1>
+    <div>
+        <h2>Total Score: {{ total }}</h2>
+        <h2>Current Winner: {{ curr_winner }}</h2>
+    </div>
+
+    <h2>Submit New Game</h2>
+    <form method="POST" action="/">
+        <label for="map">Map:</label>
+        <input type="text" id="map" name="map" required>
+
+        <label for="player1_score">Player 1 Score:</label>
+        <input type="number" id="player1_score" name="player1_score" required>
+
+        <label for="player2_score">Player 2 Score:</label>
+        <input type="number" id="player2_score" name="player2_score" required>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,115 @@
+/* General body styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+    background-color: #f8f9fa; /* Light background for better readability */
+}
+
+/* Heading styles */
+h1 {
+    text-align: center;
+    color: #343a40; /* Darker color for text */
+}
+
+h2 {
+    text-align: center;
+    color: #495057;
+}
+
+/* Form container */
+form {
+    max-width: 400px; /* Restrict form width for better mobile layout */
+    margin: 20px auto; /* Center the form on the page */
+    padding: 15px;
+    background: #ffffff; /* White background for the form */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Form input fields */
+form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #495057;
+}
+
+form input {
+    width: 100%; /* Input fields span the full width of the form */
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box; /* Ensures padding doesn't exceed total width */
+}
+
+/* Submit button */
+form button {
+    width: 100%;
+    padding: 10px;
+    background: #007bff; /* Bootstrap-style blue button */
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background: #0056b3; /* Darker blue on hover */
+}
+
+/* Running tally container */
+div {
+    max-width: 400px;
+    margin: 20px auto;
+    text-align: center;
+    padding: 15px;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    h1, h2 {
+        font-size: 1.5em;
+    }
+
+    form, div {
+        width: 90%; /* Reduce width slightly for small screens */
+        margin: 10px auto;
+    }
+
+    form input, form button {
+        font-size: 14px; /* Slightly smaller input and button text */
+    }
+}
+
+/* Navigation bar styling */
+nav {
+    background: #007bff;
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+    font-weight: bold;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
