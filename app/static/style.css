@@ -18,6 +18,43 @@ h2 {
     color: #495057;
 }
 
+.sub-stats {
+    font-size: 0.9em;  /* Adjust the size (e.g., 90% of normal text size) */
+    color: #6c757d;    /* Subtle color (e.g., Bootstrap muted gray) */
+    margin-top: 10px;  /* Add some spacing above the sub-stats */
+}
+
+.sub-stats span {
+    display: block;  /* Each span takes a full line */
+    margin-top: 5px; /* Optional spacing between lines */
+    color: #6c757d;  /* Muted color for sub-stats */
+    font-size: 0.9em;
+}
+
+form select, form input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+form button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+form button:hover {
+    background-color: #0056b3;
+}
+
+
 /* Form container */
 form {
     max-width: 400px; /* Restrict form width for better mobile layout */
@@ -74,6 +111,46 @@ div {
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
+/* Centering the chart */
+.chart-container {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center;    /* Center vertically */
+    margin: 20px auto;      /* Add spacing and center within its container */
+    max-width: 80%;         /* Optional: Restrict the max width of the container */
+    text-align: center;     /* Ensure text is centered */
+}
+
+.chart-container img {
+    max-width: 100%;        /* Ensure the image doesn't exceed the container width */
+    height: auto;           /* Maintain aspect ratio */
+    border: 1px solid #ccc; /* Optional: Add a border for better visibility */
+    border-radius: 8px;     /* Optional: Rounded corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: Subtle shadow */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 1em;
+    text-align: left;
+}
+
+table thead tr {
+    background-color: #f2f2f2;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>By Cup</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a> | <a href="/graph">Graph</a> | <a href="/by-cup">By Cup</a>
+    </nav>
+
+    <h1>By Cup</h1>
+
+    <div>
+        <h2>Player 1's Best Map (n={{ player1_best['times_played'] }}): {{ player1_best['map_name'] }} ({{player1_best['map_id']}}), Score = {{player1_best['total_score']}}</h2>
+        <h2>Player 2's Best Map (n={{ player2_best['times_played'] }}): {{ player2_best['map_name'] }} ({{player2_best['map_id']}}), Score = {{player2_best['total_score']}}</h2>
+    </div>
+
+    <div>
+        <label for="cup-dropdown">Select a Cup:</label>
+        <select id="cup-dropdown">
+            {% for option in dropdown_options %}
+            <option value="{{ option['map'] }}" {% if option['map'] == default_map %}selected{% endif %}>
+                {{ option['cup_name'] }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <h2 id="cumulative-score">Cumulative Score: {{ cumulative_score }}</h2>
+    
+    <canvas id="scoreChart" width="400" height="200"></canvas>
+
+    <h2>Cup Scores</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Cup Name</th>
+                <th>Total Score</th>
+                <th>Number of Races</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cup in cup_scores %}
+            <tr>
+                <td>{{ cup['cup_name'] }}</td>
+                <td>{{ cup['total_score'] }}</td>
+                <td>{{ cup['race_count'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Handicap Odds</h2>
+    <table id="oddsTable">
+        <thead>
+            <tr>
+                <th>Score Margin</th>
+                <th>Player 1 Odds</th>
+                <th>Player 2 Odds</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for odd in odds %}
+            <tr>
+                <td>{{ odd['margin'] }}</td>
+                <td>{{ odd['p1_odds'] }}</td>
+                <td>{{ odd['p2_odds'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Function to fetch and populate data
+        function fetchAndPopulateData(mapId) {
+            fetch(`/by-cup/data?map=${mapId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update cumulative score
+                    document.getElementById('cumulative-score').textContent = `Cumulative Score: ${data.cumulative_score}`;
+    
+                    // Update chart data
+                    scoreChart.data.labels = Array.from({ length: data.score_history.length }, (_, i) => i + 1);
+                    scoreChart.data.datasets[0].data = data.score_history;
+                    scoreChart.update();
+    
+                    // Update Odds Table
+                    const oddsTableBody = document.querySelector('#oddsTable tbody');
+                    oddsTableBody.innerHTML = ''; // Clear current table rows
+    
+                    data.odds.forEach(odd => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${odd.margin}</td>
+                            <td>${odd.p1_odds}</td>
+                            <td>${odd.p2_odds}</td>
+                        `;
+                        oddsTableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+    
+        // Initialize the chart
+        const ctx = document.getElementById('scoreChart').getContext('2d');
+        const scoreChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: {{ score_history|length }} }, (_, i) => i + 1),
+                datasets: [{
+                    label: 'Cumulative Score',
+                    data: {{ score_history|tojson }},
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true },
+                    title: { display: true, text: 'Score History' }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Games Played' } },
+                    y: { title: { display: true, text: 'Cumulative Score' } }
+                }
+            }
+        });
+    
+        // Fetch data for the default map on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const defaultMap = document.getElementById('cup-dropdown').value;
+            fetchAndPopulateData(defaultMap);
+        });
+    
+        // Handle dropdown change
+        document.getElementById('cup-dropdown').addEventListener('change', function() {
+            const selectedMap = this.value;
+            fetchAndPopulateData(selectedMap);
+        });
+    </script>
+</body>
+</html>

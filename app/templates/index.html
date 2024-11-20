@@ -8,19 +8,27 @@
 </head>
 <body>
     <nav>
-        <a href="/">Home</a> | <a href="/graph">Graph</a>
+        <a href="/">Home</a> | <a href="/graph">Graph</a> | <a href="/by-cup">By Cup</a>
     </nav>
 
     <h1>Mario Kart Running Tally</h1>
     <div>
         <h2>Total Score: {{ total }}</h2>
         <h2>Current Winner: {{ curr_winner }}</h2>
+        <p class="sub-stats">
+            <span>Number of Grand Prix's: {{num_games}}</span>
+            <span>Average Grand Prix Score: {{avg_score}}</span>
+        </p>
     </div>
 
     <h2>Submit New Game</h2>
     <form method="POST" action="/">
-        <label for="map">Map:</label>
-        <input type="text" id="map" name="map" required>
+        <label for="cup">Cup:</label>
+        <select id="cup" name="cup" required>
+            {% for cup in cups %}
+            <option value="{{ cup['id'] }}">{{ cup['id'] }} - {{ cup['name'] }}</option>
+            {% endfor %}
+        </select>
 
         <label for="player1_score">Player 1 Score:</label>
         <input type="number" id="player1_score" name="player1_score" required>
@@ -28,7 +36,63 @@
         <label for="player2_score">Player 2 Score:</label>
         <input type="number" id="player2_score" name="player2_score" required>
 
+        {% if error %}
+        <p style="color: red;">{{ error }}</p>
+        {% endif %}
+
         <button type="submit">Submit</button>
     </form>
+
+    <form method="POST" action="/archive">
+        <button type="submit">Archive Database</button>
+    </form>
+
+    <h2>Handicap Odds</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Score Margin</th>
+                <th>Player 1 Odds</th>
+                <th>Player 2 Odds</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for odd in odds %}
+            <tr>
+                <td>{{ odd['margin'] }}</td>
+                <td>{{ odd['p1_odds'] }}</td>
+                <td>{{ odd['p2_odds'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h1>Normal Distribution Curve</h1>
+    <div class="chart-container">
+        <img src="{{ url_for('main.plot_png') }}" alt="Normal Distribution">
+    </div>
+    
+
+    <script>
+        document.getElementById('player1_score').addEventListener('input', function(e) {
+            const value = e.target.value;
+            if (isNaN(value) || value === '' || value > 60 || value < 4) {
+                e.target.setCustomValidity('Please enter a valid numeric score.');
+            } else {
+                e.target.setCustomValidity('');
+            }
+        });
+    
+        document.getElementById('player2_score').addEventListener('input', function(e) {
+            const value = e.target.value;
+            if (isNaN(value) || value === '' || value > 60 || value < 4) {
+                e.target.setCustomValidity('Please enter a valid numeric score.');
+            } else {
+                e.target.setCustomValidity('');
+            }
+        });
+    </script>
+    
+
 </body>
 </html>
