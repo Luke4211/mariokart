@@ -16,6 +16,28 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+
+        // Function to calculate the moving average
+        function calculateMovingAverage(data, windowSize) {
+            const movingAverages = [];
+            for (let i = 0; i < data.length; i++) {
+                if (i < windowSize - 1) {
+                    // Not enough data points yet for the moving average
+                    movingAverages.push(null);
+                } else {
+                    const windowData = data.slice(i - windowSize + 1, i + 1);
+                    const windowAverage = windowData.reduce((sum, val) => sum + val, 0) / windowSize;
+                    movingAverages.push(windowAverage);
+                }
+            }
+            return movingAverages;
+        }
+
+        // Example: Input data and window size for moving average
+        const cumulativeScores = {{ cumulative_scores | tojson }};
+        const movingAverageWindow = 10; // Set your desired window size
+        const movingAverages = calculateMovingAverage(cumulativeScores, movingAverageWindow);
+
         const ctx = document.getElementById('runningTallyChart').getContext('2d');
         const runningTallyChart = new Chart(ctx, {
             type: 'line',
@@ -28,6 +50,15 @@
                         borderColor: 'rgba(75, 192, 192, 1)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
                         fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: `Moving Average (Last ${movingAverageWindow} Games)`,
+                        data: movingAverages,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        fill: false,
+                        borderDash: [5, 5], // Dashed line for distinction
                         tension: 0.4
                     }
                 ]

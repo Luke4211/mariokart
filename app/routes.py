@@ -36,7 +36,9 @@ def fit_norm(distribution):
 
 
 def get_american_odds(prob):
-    if prob < 0.5:
+    if prob == 0.0 or np.isnan(prob):
+        return "Undefined Odds"
+    elif prob < 0.5:
         odds = int((100 * ((1-prob)/prob)))
         odds = f"+{odds}"
     else:
@@ -58,10 +60,13 @@ def get_handicap_odds(handicap, distribution=None, mu=None, sigma=None):
     return get_american_odds(prob)
 
 
-def get_many_odds(distribution, margin_array):
+def get_many_odds(distribution, margin_array, sig=None):
     rtn = []
 
     mu, sigma = fit_norm(distribution)
+
+    if sig is not None:
+        sigma = sig
 
     for margin in margin_array:
         rtn.append(
@@ -325,6 +330,16 @@ def get_map_data():
 
     cumulative_score = cumulative_score_row['total_score'] if cumulative_score_row else 0
 
+    full_rows = conn.execute('''
+        SELECT id, score
+        FROM luke_liam
+        ORDER BY id
+    ''').fetchall()
+
+    full_dist = [row["score"] for row in full_rows]
+    total_mean = np.mean(full_dist)
+    total_sigma = np.std(full_dist)
+
     # Get score history for the graph
     rows = conn.execute('''
         SELECT id, score
@@ -341,7 +356,7 @@ def get_map_data():
 
     margins = [1, 3, 5, 10, 15, 20, 25, 30]
     score_margins = [row['score'] for row in rows]  # List of individual scores
-    odds = get_many_odds(score_margins, margins)
+    odds = get_many_odds(score_margins, margins, total_sigma)
 
     conn.close()
 

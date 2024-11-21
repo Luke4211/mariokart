@@ -118,8 +118,10 @@ div {
     justify-content: center; /* Center horizontally */
     align-items: center;    /* Center vertically */
     margin: 20px auto;      /* Add spacing and center within its container */
-    max-width: 80%;         /* Optional: Restrict the max width of the container */
+    max-width: 80%;       /* Optional: Restrict the max width of the container */
     text-align: center;     /* Ensure text is centered */
+    overflow: hidden;
+
 }
 
 .chart-container img {
@@ -169,6 +171,16 @@ table tbody tr:nth-child(even) {
 
     form input, form button {
         font-size: 14px; /* Slightly smaller input and button text */
+    }
+
+    .chart-container {
+        max-width: 100%;         /* Use the full width of the screen */
+        padding: 10px;       /* Add some padding for better spacing */
+    }
+
+    canvas {
+        width: 100% !important;  /* Make the canvas fill the container */
+        height: auto !important; /* Maintain aspect ratio */
     }
 }
 
