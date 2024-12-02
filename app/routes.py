@@ -105,6 +105,8 @@ def get_score_margins(cup=None):
 @main.route('/', methods=['GET', 'POST'])
 def index():
     prior_tally = current_app.config['PRIOR_TALLY']
+    p1_name = current_app.config['P1_NAME']
+    p2_name = current_app.config['P2_NAME']
 
     conn = get_db_connection()
 
@@ -153,9 +155,9 @@ def index():
     winner = "Tied"
 
     if total > 0:
-        winner = "Luke"
+        winner = p1_name
     elif total < 0:
-        winner = "Liam"
+        winner = p2_name
     
     odds = get_many_odds(get_score_margins(), [1, 3, 5, 10, 15, 20, 25, 30])
     conn.close()
@@ -166,7 +168,9 @@ def index():
         avg_score=avg_score,
         num_games=num_games,
         cups=cups,
-        odds=odds
+        odds=odds,
+        p1_name=p1_name,
+        p2_name=p2_name
     )
 
 @main.route('/graph')
@@ -197,6 +201,8 @@ def graph():
 @main.route('/by-cup', methods=['GET'])
 def by_cup():
     conn = get_db_connection()
+    p1_name = current_app.config['P1_NAME']
+    p2_name = current_app.config['P2_NAME']
 
     # Fetch total scores for each cup
     cup_scores = conn.execute('''
@@ -216,7 +222,8 @@ def by_cup():
             maps.id AS map_id,
             maps.name AS map_name,
             SUM(luke_liam.score) AS total_score,
-            COUNT(luke_liam.id) AS times_played
+            COUNT(luke_liam.id) AS times_played,
+            ROUND(CAST(SUM(luke_liam.score) AS FLOAT) / COUNT(luke_liam.id), 2) AS average_score
         FROM luke_liam
         JOIN maps ON luke_liam.map = maps.id
         WHERE luke_liam.map != 'N'
@@ -230,7 +237,8 @@ def by_cup():
             maps.id AS map_id,
             maps.name AS map_name,
             SUM(luke_liam.score) AS total_score,
-            COUNT(luke_liam.id) AS times_played
+            COUNT(luke_liam.id) AS times_played,
+            ROUND(CAST(SUM(luke_liam.score) AS FLOAT) / COUNT(luke_liam.id), 2) AS average_score
         FROM luke_liam
         JOIN maps ON luke_liam.map = maps.id
         WHERE luke_liam.map != 'N'
@@ -286,7 +294,9 @@ def by_cup():
         default_map=default_map,
         cumulative_score=cumulative_score,
         score_history=score_history,
-        cup_scores=cup_scores
+        cup_scores=cup_scores,
+        p1_name=p1_name,
+        p2_name=p2_name
     )
 
 
@@ -358,6 +368,13 @@ def get_map_data():
     score_margins = [row['score'] for row in rows]  # List of individual scores
     odds = get_many_odds(score_margins, margins, total_sigma)
 
+    selected_map_name = conn.execute('''
+        SELECT name
+        FROM Maps
+        WHERE id = ?
+    ''', (selected_map_id,)).fetchone()["name"]
+
+
     conn.close()
 
     response = {
@@ -369,24 +386,31 @@ def get_map_data():
     return jsonify({
         'cumulative_score': cumulative_score,
         'score_history': score_history,
-        'odds': odds
+        'odds': odds,
+        'selected_map_name': selected_map_name
     })
 
 @main.route('/plot.png')
 def plot_png():
-
+    # Get score margins and fit the normal distribution
     score_margins = get_score_margins()
     mu, sigma = fit_norm(score_margins)
 
-    # Generate x values and PDF
+    # Generate x values and PDF for the normal distribution
     x = np.linspace(mu - 4 * sigma, mu + 4 * sigma, 1000)
     pdf = norm.pdf(x, loc=mu, scale=sigma)
 
     # Create the plot
     fig, ax = plt.subplots(figsize=(8, 5))
-    ax.plot(x, pdf, label=f'Normal Distribution\nμ={mu:.3f}, σ={sigma:.3f}')
-    ax.fill_between(x, pdf, alpha=0.3, color='blue')
-    ax.set_title('Normal Distribution Curve')
+
+    # Plot the normal distribution curve
+    ax.plot(x, pdf, label=f'Normal Distribution\nμ={mu:.3f}, σ={sigma:.3f}', color='red', linewidth=2)
+
+    # Plot the actual data distribution as a histogram
+    ax.hist(score_margins, bins=20, density=True, alpha=0.6, label='Empirical Distribution', color='blue')
+
+    # Add additional plot details
+    ax.set_title('Normal vs Empirical Distribution of Score Margins')
     ax.set_xlabel('Score Margin')
     ax.set_ylabel('Probability Density')
     ax.legend(loc='upper left')

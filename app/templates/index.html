@@ -47,27 +47,28 @@
         <button type="submit">Archive Database</button>
     </form>
 
-    <h2>Handicap Odds</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Win By</th>
-                <th>Luke Odds</th>
-                <th>Liam Odds</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for odd in odds %}
-            <tr>
-                <td>{{ odd['margin'] }}</td>
-                <td>{{ odd['p1_odds'] }}</td>
-                <td>{{ odd['p2_odds'] }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div>
+        <h2>Handicap Odds</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Win By</th>
+                    <th>{{p1_name}} Odds</th>
+                    <th>{{p2_name}} Odds</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for odd in odds %}
+                <tr>
+                    <td>{{ odd['margin'] }}</td>
+                    <td>{{ odd['p1_odds'] }}</td>
+                    <td>{{ odd['p2_odds'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <h1>Normal Distribution Curve</h1>
     <div class="chart-container">
         <img src="{{ url_for('main.plot_png') }}" alt="Normal Distribution">
     </div>

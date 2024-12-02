@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>By Cup</title>
+    <title>Statistics By Cup</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -11,67 +11,118 @@
         <a href="/">Home</a> | <a href="/graph">Graph</a> | <a href="/by-cup">By Cup</a>
     </nav>
 
-    <h1>By Cup</h1>
-
     <div>
-        <h2>Player 1's Best Map (n={{ player1_best['times_played'] }}): {{ player1_best['map_name'] }} ({{player1_best['map_id']}}), Score = {{player1_best['total_score']}}</h2>
-        <h2>Player 2's Best Map (n={{ player2_best['times_played'] }}): {{ player2_best['map_name'] }} ({{player2_best['map_id']}}), Score = {{player2_best['total_score']}}</h2>
+
+        <h1 id="stats-for-cup">Statistics By Cup</h1>
+
+        <div>
+            <label for="cup-dropdown">Select a Cup:</label>
+            <select id="cup-dropdown">
+                {% for option in dropdown_options %}
+                <option value="{{ option['map'] }}" {% if option['map'] == default_map %}selected{% endif %}>
+                    {{option['map_id']}} - {{ option['cup_name'] }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div>
+            <h2 id="cumulative-score">Cumulative Score: {{ cumulative_score }}</h2>
+            
+            <canvas id="scoreChart" width="400" height="200"></canvas>
+        </div>
+        
+        <div>
+            <h2 id="odds-title">Odds For {{default_map}}</h2>
+            <table id="oddsTable">
+                <thead>
+                    <tr>
+                        <th>Win By</th>
+                        <th>{{p1_name}} Odds</th>
+                        <th>{{p2_name}} Odds</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for odd in odds %}
+                    <tr>
+                        <td>{{ odd['margin'] }}</td>
+                        <td>{{ odd['p1_odds'] }}</td>
+                        <td>{{ odd['p2_odds'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div>
-        <label for="cup-dropdown">Select a Cup:</label>
-        <select id="cup-dropdown">
-            {% for option in dropdown_options %}
-            <option value="{{ option['map'] }}" {% if option['map'] == default_map %}selected{% endif %}>
-                {{option['map_id']}} - {{ option['cup_name'] }}
-            </option>
-            {% endfor %}
-        </select>
+        <h2>All Cup Statistics</h2>
+        <div>
+            <h2>Best Maps by Player</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Best Map</th>
+                        <th>Total Score</th>
+                        <th>Avg Score</th>
+                        <th>Times Played</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ p1_name }}</td>
+                        <td>{{ player1_best['map_name'] }}</td>
+                        <td>{{ player1_best['total_score'] }}</td>
+                        <td>{{ player1_best['average_score'] }}</td>
+                        <td>{{ player1_best['times_played'] }}</td>
+                        
+                    </tr>
+                    <tr>
+                        <td>{{ p2_name }}</td>
+                        <td>{{ player2_best['map_name'] }}</td>
+                        <td>{{ player2_best['total_score'] }}</td>
+                        <td>{{ player2_best['average_score'] }}</td>
+                        <td>{{ player2_best['times_played'] }}</td>
+                        
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div>
+
+            <h2>All Cup Scores</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cup Name</th>
+                        <th>Total Score</th>
+                        <th>Number of Races</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cup in cup_scores %}
+                    <tr>
+                        <td>{{ cup['cup_name'] }}</td>
+                        <td>
+                            {% if cup['total_score'] > 0 %}
+                                {{ p1_name }} by {{ cup['total_score'] | abs }}
+                            {% elif cup['total_score'] < 0 %}
+                                {{ p2_name }} by {{ cup['total_score'] | abs }}
+                            {% else %}
+                                Tied
+                            {% endif %}
+                        </td>
+                        <td>{{ cup['race_count'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-    
-    <h2 id="cumulative-score">Cumulative Score: {{ cumulative_score }}</h2>
-    
-    <canvas id="scoreChart" width="400" height="200"></canvas>
 
-    <h2>Cup Scores</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Cup Name</th>
-                <th>Total Score</th>
-                <th>Number of Races</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for cup in cup_scores %}
-            <tr>
-                <td>{{ cup['cup_name'] }}</td>
-                <td>{{ cup['total_score'] }}</td>
-                <td>{{ cup['race_count'] }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 
-    <h2>Handicap Odds</h2>
-    <table id="oddsTable">
-        <thead>
-            <tr>
-                <th>Win By</th>
-                <th>Luke Odds</th>
-                <th>Liam Odds</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for odd in odds %}
-            <tr>
-                <td>{{ odd['margin'] }}</td>
-                <td>{{ odd['p1_odds'] }}</td>
-                <td>{{ odd['p2_odds'] }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 
     
 
@@ -83,7 +134,8 @@
                 .then(response => response.json())
                 .then(data => {
                     // Update cumulative score
-                    document.getElementById('cumulative-score').textContent = `Cumulative Score: ${data.cumulative_score}`;
+                    document.getElementById('cumulative-score').textContent = `Cumulative Score for ${data.selected_map_name}: ${data.cumulative_score}`;
+                    document.getElementById('odds-title').textContent = `Odds For ${data.selected_map_name}`;
     
                     // Update chart data
                     scoreChart.data.labels = Array.from({ length: data.score_history.length }, (_, i) => i + 1);
